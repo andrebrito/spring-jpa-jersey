@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Spring boot initializer.
  * @author Andre Brito Fonseca
  */
-@SpringBootApplication(scanBasePackages = { "br.com.cinq.spring.data.sample" })
-@EntityScan(basePackages = { "br.com.cinq.spring.data.sample.entity" })
-@EnableJpaRepositories("br.com.cinq.spring.data.sample.repository")
+@SpringBootApplication(scanBasePackages = { "br.com.cinq.spring.data.*" })
+@EntityScan(basePackages = { "br.com.cinq.spring.data.entity" })
+@EnableJpaRepositories("br.com.cinq.spring.data.repository")
 public class Application extends SpringBootServletInitializer {
 
     @Override

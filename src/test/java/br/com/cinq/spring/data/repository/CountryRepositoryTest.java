@@ -11,8 +11,8 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.Iterables;
@@ -21,8 +21,8 @@ import br.com.cinq.spring.data.application.Application;
 import br.com.cinq.spring.data.entity.Country;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
 @SpringBootTest(classes = Application.class)
+@TestConfiguration(value = "test")
 public class CountryRepositoryTest {
 
     @Autowired
@@ -43,7 +43,7 @@ public class CountryRepositoryTest {
     public void testFindOneCountry() {
         assertNotNull(dao);
         
-        List<Country> countries = dao.findLikeName("Fra");
+        final List<Country> countries = dao.findByNameContaining("fra");
         assertThat(countries, hasSize(1));
         
         final Country country = Iterables.getLast(countries);

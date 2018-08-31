@@ -1,36 +1,75 @@
 package br.com.cinq.spring.data.repository;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.cinq.spring.data.application.Application;
+import br.com.cinq.spring.data.entity.City;
+import br.com.cinq.spring.data.entity.Country;
+import br.com.cinq.spring.matcher.CityMatcher;
 
 /**
- * Testing CityRepository.
+ * Testing CountryRepository using application-test config file.
+ * @author Andre Brito Fonseca
+ *
  */
 @RunWith(SpringRunner.class)
-@DataJpaTest
 @SpringBootTest(classes = Application.class)
+@TestConfiguration(value = "test")
 public class CityRepositoryTest {
 
-//    @Autowired
-//    private CityRepository dao;
+    @Autowired
+    private CityRepository dao;
 
     @Test
-    public void testQueryPerson() {
+    public void testFindCityByCountry() {
+        assertNotNull(dao);
+        assertThat(dao.count(), greaterThan(0L));
 
-//        Assert.assertNotNull(dao);
+        final Country country = new Country();
+        country.setId(3L);
+
+        final List<City> cities = dao.findByCountry(country);
+        assertThat(cities, hasSize(2));
+    }
+    
+    /**
+     * Test the find the name criteria.
+     * Using CityMatcher. 
+     */
+    @Test
+    public void testFindByName() {
+        assertNotNull(dao);
+
+        final List<City> cities = dao.findByName("Curitiba");
+        assertThat(cities, hasSize(1));
         
-//        Assert.assertTrue(dao.count()>0);
+        assertThat(cities, CityMatcher.hasCityWithName("Curitiba"));
+    }
+    
+    /**
+     * Test the find using like by name, ignoring the capitalization.
+     * Using CityMatcher. 
+     */
+    @Test
+    public void testFindMultipleCitiesByName() {
+        assertNotNull(dao);
 
-//        Country country = new Country();
-//        country.setId(3); // Should be France
-
-//        List<City> list = dao.findByCountry(country);
-
-//        Assert.assertEquals(2, list.size());
+        final List<City> cities = dao.findByNameContainingIgnoreCase("y");
+        assertThat(cities, hasSize(2));
+        
+        assertThat(cities, CityMatcher.hasCityWithName("Lyon"));
+        assertThat(cities, CityMatcher.hasCityWithName("New York"));
     }
 }

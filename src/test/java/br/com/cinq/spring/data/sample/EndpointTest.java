@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -14,13 +15,14 @@ import br.com.cinq.spring.data.application.Application;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("unit")
+@TestConfiguration(value = "test")
 public class EndpointTest {
 	
     Logger logger = LoggerFactory.getLogger(EndpointTest.class);
 
     private final String localhost = "http://localhost:";
 
-    @Value("${local.server.port}")
+    @Value("${server.port}")
     private int port;
 
 //    private final RestTemplate restTemplate = new TestRestTemplate();

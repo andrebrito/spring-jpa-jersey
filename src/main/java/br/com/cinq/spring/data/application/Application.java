@@ -1,29 +1,26 @@
-package br.com.cinq.spring.data.sample.application;
+package br.com.cinq.spring.data.application;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
-import org.springframework.boot.orm.jpa.EntityScan;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * Greeting Service.
+ * Spring boot initializer.
+ * @author Andre Brito Fonseca
  */
-@SpringBootApplication
-@ComponentScan(basePackages = { "br.com.cinq.spring.data.sample" })
+@SpringBootApplication(scanBasePackages = { "br.com.cinq.spring.data.sample" })
 @EntityScan(basePackages = { "br.com.cinq.spring.data.sample.entity" })
 @EnableJpaRepositories("br.com.cinq.spring.data.sample.repository")
-@EnableAutoConfiguration
 public class Application extends SpringBootServletInitializer {
 
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    protected SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
         return application.sources(Application.class);
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new Application().configure(new SpringApplicationBuilder(Application.class)).run(args);
     }
 }

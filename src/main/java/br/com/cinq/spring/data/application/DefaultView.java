@@ -1,4 +1,4 @@
-package br.com.cinq.spring.data.sample.application;
+package br.com.cinq.spring.data.application;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;

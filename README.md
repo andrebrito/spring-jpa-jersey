@@ -31,9 +31,9 @@ The lines requested were uncommented and a lot of tests were added.
 
 According to JaCoCo, got 90% of coverage.
 
-[![Test Coverage in Eclipse](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage.png)]
+[![Test Coverage in Eclipse](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage.png)
 
-[![Test Coverage in HTML](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage-html.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage-html.png)]
+[![Test Coverage in HTML](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage-html.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/coverage-html.png) 
 
 ## Feedback
 If possible, I would like some feedback about my code. Gotta say that a lot of things that I've tried were unsuccessful, but I believe that the code is ok. Thanks.

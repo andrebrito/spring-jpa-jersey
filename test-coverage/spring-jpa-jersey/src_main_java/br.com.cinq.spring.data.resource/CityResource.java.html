@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CityResource.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (01/09/2018 18:42:53)</a> &gt; <a href="../../index.html" class="el_group">spring-jpa-jersey</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">br.com.cinq.spring.data.resource</a> &gt; <span class="el_source">CityResource.java</span></div><h1>CityResource.java</h1><pre class="source lang-java linenums">package br.com.cinq.spring.data.resource;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+import br.com.cinq.spring.data.dto.CityDTO;
+import br.com.cinq.spring.data.entity.City;
+import br.com.cinq.spring.data.repository.CityRepository;
+import br.com.cinq.spring.data.service.CityService;
+
+/**
+ * Resource methods for City objects.
+ * All methods produce JSON objects.
+ * @author Andre Brito Fonseca
+ *
+ */
+@Component
+@Path(&quot;/cities&quot;)
+@Produces(&quot;application/json&quot;)
+<span class="fc" id="L34">public class CityResource {</span>
+	
+	@Autowired
+	private CityRepository cityRepository;
+	
+	@Autowired
+	private CityService cityService;
+	
+	@GET
+	public Response findCities(final @QueryParam(&quot;country&quot;) String country) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">		if (isNullOrEmpty(country))  {</span>
+<span class="fc" id="L45">			return Response.ok(cityRepository.findAll()).build();</span>
+		}
+		
+<span class="fc" id="L48">		final List&lt;City&gt; cities = cityRepository.findAllByCountryNameContainingIgnoreCase(country);</span>
+<span class="fc" id="L49">		return Response.ok(cities).build();</span>
+	}
+	
+	@POST
+	@Consumes(&quot;application/json&quot;)
+	public ResponseEntity&lt;?&gt; createCity(final CityDTO cityDTO) {
+		try {
+<span class="fc" id="L56">			final City city = cityService.createCity(cityDTO);</span>
+<span class="fc" id="L57">			return ResponseEntity.ok().body(&quot;City with id &quot; + city.getId() + &quot; created.&quot;);</span>
+<span class="nc" id="L58">		} catch (final IllegalStateException e) {</span>
+<span class="nc" id="L59">			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>java (01/09/2018 18:42:53)</div></body></html>

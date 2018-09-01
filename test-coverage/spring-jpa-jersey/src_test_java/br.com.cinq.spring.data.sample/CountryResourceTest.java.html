@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CountryResourceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (01/09/2018 18:42:53)</a> &gt; <a href="../../index.html" class="el_group">spring-jpa-jersey</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">br.com.cinq.spring.data.sample</a> &gt; <span class="el_source">CountryResourceTest.java</span></div><h1>CountryResourceTest.java</h1><pre class="source lang-java linenums">package br.com.cinq.spring.data.sample;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpStatus.OK;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import br.com.cinq.spring.data.application.Application;
+import br.com.cinq.spring.data.entity.Country;
+import br.com.cinq.spring.data.repository.CountryRepository;
+import br.com.cinq.spring.matcher.CountryMatcher;
+
+/**
+ * This is the class that will contain all tests related to the Country resources.
+ * We could left this code at EndpointTest class, but I believe that test classes 
+ * should me the smallest possible. And if I left this code @ EndpointTest, it would
+ * get larger and larger, so I decided to code this tests in this class.
+ * 
+ * @author Andre Brito Fonseca
+ *
+ */
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(&quot;unit&quot;)
+@TestConfiguration(value = &quot;test&quot;)
+<span class="fc" id="L48">public class CountryResourceTest {</span>
+	
+<span class="fc" id="L50">	private final String localhost = &quot;http://localhost:&quot;;</span>
+
+    @LocalServerPort
+    private int port;
+	
+	@Autowired
+    private CountryRepository countryRepository;
+	
+<span class="fc" id="L58">	private final TestRestTemplate restTemplate = new TestRestTemplate();</span>
+	
+	/**
+     * This test checks the service that retrieves all countries. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void findAllCountries() throws InterruptedException {
+<span class="fc" id="L67">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L68">        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);</span>
+
+<span class="fc" id="L70">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + &quot;/rest/countries&quot;);</span>
+
+<span class="fc" id="L72">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L74">        final ResponseEntity&lt;Country[]&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.GET,
+                entity, 
+                Country[].class);
+
+<span class="fc" id="L79">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L81">        final List&lt;Country&gt; countries = Arrays.asList(response.getBody());</span>
+<span class="fc" id="L82">        assertThat(countries, hasSize(3));</span>
+<span class="fc" id="L83">        assertThat(countryRepository.count(), equalTo(3L));</span>
+<span class="fc" id="L84">        assertThat(countries, CountryMatcher.hasCountryWithName(&quot;Brazil&quot;));</span>
+<span class="fc" id="L85">        assertThat(countries, CountryMatcher.hasCountryWithName(&quot;United States&quot;));</span>
+<span class="fc" id="L86">        assertThat(countries, CountryMatcher.hasCountryWithName(&quot;France&quot;));</span>
+<span class="fc" id="L87">    }</span>
+    
+    /**
+     * This test checks the service that retrieves all countries. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void findCountryByName() throws InterruptedException {
+<span class="fc" id="L96">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L97">        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);</span>
+
+<span class="fc" id="L99">        final String countryName = &quot;Brazil&quot;;</span>
+<span class="fc" id="L100">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + &quot;/rest/countries&quot;)</span>
+<span class="fc" id="L101">        		.queryParam(&quot;country&quot;, countryName);</span>
+
+<span class="fc" id="L103">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L105">        final ResponseEntity&lt;Country&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.GET,
+                entity, 
+                Country.class);
+
+<span class="fc" id="L110">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L112">        final Country country = response.getBody();</span>
+<span class="fc" id="L113">        assertThat(country, notNullValue());</span>
+<span class="fc" id="L114">        assertThat(country.getName(), equalTo(countryName));</span>
+<span class="fc" id="L115">    }</span>
+    
+    /**
+     * Tests the creation of country using the POST service. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void createCountry() throws InterruptedException {
+<span class="fc" id="L124">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L125">        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);</span>
+
+<span class="fc" id="L127">        final String countryName = &quot;Sweden&quot;;</span>
+<span class="fc" id="L128">        final UriComponentsBuilder builder = UriComponentsBuilder</span>
+<span class="fc" id="L129">        		.fromHttpUrl(this.localhost + this.port + &quot;/rest/countries/&quot; + countryName);</span>
+
+<span class="fc" id="L131">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L133">        final ResponseEntity&lt;Country&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.POST,
+                entity, 
+                Country.class);
+
+<span class="fc" id="L138">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L140">        final Country country = response.getBody();</span>
+<span class="fc" id="L141">        assertThat(country, notNullValue());</span>
+<span class="fc" id="L142">        assertThat(country.getName(), equalTo(countryName));</span>
+<span class="fc" id="L143">        assertThat(country.getId(), greaterThan(0L));</span>
+<span class="fc" id="L144">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>java (01/09/2018 18:42:53)</div></body></html>

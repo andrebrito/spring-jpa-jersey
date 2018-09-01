@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CityResourceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (01/09/2018 18:42:53)</a> &gt; <a href="../../index.html" class="el_group">spring-jpa-jersey</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">br.com.cinq.spring.data.sample</a> &gt; <span class="el_source">CityResourceTest.java</span></div><h1>CityResourceTest.java</h1><pre class="source lang-java linenums">package br.com.cinq.spring.data.sample;
+
+import static com.google.common.collect.Iterables.getLast;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpStatus.OK;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import br.com.cinq.spring.data.application.Application;
+import br.com.cinq.spring.data.entity.City;
+import br.com.cinq.spring.data.repository.CityRepository;
+
+/**
+ * This is the (old) EndpointTest.
+ * It will test the resources related to cities entitites.
+ * I didn't like how the name of the test class was (EndpointTest), 
+ * so I changed. I hope that it's not a problem.  
+ * 
+ * I have to say that I definetly believe that mockMvc is better suitable for the job.
+ * Since I don't know that I can change, I will remain with RestTemplate.
+ * 
+ * In a few tests, we receive a 200, but with a code of 400 on the body. 
+ * I'm not sure how it's the best way to test that and if doing like that 
+ * is the right and better way. Sorry.
+ * 
+ * @author Andre Brito Fonseca
+ *
+ */
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(&quot;unit&quot;)
+@TestConfiguration(value = &quot;test&quot;)
+<span class="fc" id="L58">public class CityResourceTest {</span>
+	
+<span class="fc" id="L60">	private final String localhost = &quot;http://localhost:&quot;;</span>
+
+    @LocalServerPort
+    private int port;
+    
+    @Autowired
+    private CityRepository cityRepository;
+    
+<span class="fc" id="L68">    private final TestRestTemplate restTemplate = new TestRestTemplate();</span>
+
+    /**
+     * This tests the behavior of the GET method of cities resource.
+     * In this test, we are sending a query parameter. Since the @QueryParam 
+     * won't define a new path for the GET method, we will have to use the same GET
+     * method to retrieve cities by country and if we do not send the query parameter, 
+     * it will bring all cities (retrieveAll kind of).
+     * 
+     * If we were to have 2 GET annotated methods, it would probably be using 
+     * some sort of @GET @Path(/{country}), sending the parameter as the path, 
+     * and not as a query parameter. Too bad that I couldn't find an approach 
+     * better for this.
+     *  
+     * @throws InterruptedException
+     */
+    @Test
+    public void findCitiesByCountry() throws InterruptedException {
+<span class="fc" id="L86">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L87">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="fc" id="L89">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + &quot;/rest/cities&quot;)</span>
+<span class="fc" id="L90">                .queryParam(&quot;country&quot;, &quot;France&quot;);</span>
+
+<span class="fc" id="L92">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L94">        final ResponseEntity&lt;City[]&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.GET,
+                entity, 
+                City[].class);
+
+<span class="fc" id="L99">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L101">        final List&lt;City&gt; cities = Arrays.asList(response.getBody());</span>
+<span class="fc" id="L102">        assertThat(cities, hasSize(2));</span>
+<span class="fc" id="L103">    }</span>
+    
+    /**
+     * This test consumes the service that searches cities by country, 
+     * using the like clause. The test will pass 'fr' and the service
+     * must return all the cities that have a country with 'fr' on its name.
+     *  
+     * @throws InterruptedException
+     */
+    @Test
+    public void findCitiesByCountryWithLikeClause() throws InterruptedException {
+<span class="fc" id="L114">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L115">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="fc" id="L117">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + &quot;/rest/cities&quot;)</span>
+<span class="fc" id="L118">                .queryParam(&quot;country&quot;, &quot;fr&quot;);</span>
+
+<span class="fc" id="L120">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L122">        final ResponseEntity&lt;City[]&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.GET,
+                entity, 
+                City[].class);
+
+<span class="fc" id="L127">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L129">        final List&lt;City&gt; cities = Arrays.asList(response.getBody());</span>
+<span class="fc" id="L130">        assertThat(cities, hasSize(2));</span>
+<span class="fc" id="L131">    }</span>
+    
+    /**
+     * This is the test that will check what happens when we do not send 
+     * any query parameter to the GET method.
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void findAllCities() throws InterruptedException {
+<span class="fc" id="L141">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L142">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="fc" id="L144">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + &quot;/rest/cities&quot;);</span>
+
+<span class="fc" id="L146">        final HttpEntity&lt;?&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+
+<span class="fc" id="L148">        final ResponseEntity&lt;City[]&gt; response = this.restTemplate.exchange(builder.build().encode().toUri(), </span>
+        		HttpMethod.GET,
+                entity, 
+                City[].class);
+
+<span class="fc" id="L153">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L155">        final List&lt;City&gt; cities = Arrays.asList(response.getBody());</span>
+<span class="fc" id="L156">        assertThat(cities, hasSize(9));</span>
+<span class="fc" id="L157">        assertThat(cityRepository.count(), equalTo(9L));</span>
+<span class="fc" id="L158">    }</span>
+    
+    /**
+     * Tests the creation of city using the POST service. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void createCity() throws InterruptedException {
+<span class="fc" id="L167">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L168">        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);</span>
+        
+<span class="fc" id="L170">        final String cityName = &quot;Maringa&quot;;</span>
+<span class="fc" id="L171">        final List&lt;City&gt; citiesBeforeRequest = cityRepository.findByName(cityName);</span>
+<span class="fc" id="L172">        assertThat(citiesBeforeRequest, empty());</span>
+        
+<span class="fc" id="L174">        final Long countryId = 1L;</span>
+<span class="fc" id="L175">        final Map&lt;String, Object&gt; m = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L176">        m.put(&quot;cityName&quot;, cityName);</span>
+<span class="fc" id="L177">        m.put(&quot;countryId&quot;, countryId);</span>
+        
+<span class="fc" id="L179">        final HttpEntity&lt;Map&lt;String, Object&gt;&gt; request = new HttpEntity&lt;Map&lt;String, Object&gt;&gt;(m, headers);</span>
+<span class="fc" id="L180">        final ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(this.localhost + this.port + &quot;/rest/cities&quot;, </span>
+        		request, 
+        		String.class);
+
+<span class="fc" id="L184">        assertThat(response.getStatusCode(), equalTo(OK));</span>
+        
+<span class="fc" id="L186">        final List&lt;City&gt; citiesAfterRequest = cityRepository.findByName(cityName);</span>
+<span class="fc" id="L187">        assertThat(citiesAfterRequest, hasSize(1));</span>
+        
+<span class="fc" id="L189">        final City city = getLast(citiesAfterRequest);</span>
+<span class="fc" id="L190">        assertThat(city, notNullValue());</span>
+<span class="fc" id="L191">        assertThat(city.getId(), greaterThan(0L));</span>
+<span class="fc" id="L192">        assertThat(city.getName(), equalTo(cityName));</span>
+<span class="fc" id="L193">        assertThat(city.getCountry().getName(), equalTo(&quot;Brazil&quot;));</span>
+<span class="fc" id="L194">        assertThat(city.getCountry().getId(), equalTo(countryId));</span>
+<span class="fc" id="L195">    }</span>
+    
+    /**
+     * Tests post request without countryId. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithoutCountryId() throws InterruptedException {
+<span class="fc" id="L204">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L205">        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);</span>
+        
+<span class="fc" id="L207">        assertThat(cityRepository.count(), equalTo(9L));</span>
+        
+<span class="fc" id="L209">        final Map&lt;String, Object&gt; m = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L210">        m.put(&quot;cityName&quot;, &quot;Maringa&quot;);</span>
+<span class="fc" id="L211">        m.put(&quot;countryId&quot;, null);</span>
+        
+<span class="fc" id="L213">        final HttpEntity&lt;Map&lt;String, Object&gt;&gt; request = new HttpEntity&lt;Map&lt;String, Object&gt;&gt;(m, headers);</span>
+<span class="fc" id="L214">        restTemplate.postForEntity(this.localhost + this.port + &quot;/rest/cities&quot;, </span>
+        		request, 
+        		String.class);
+        
+<span class="fc" id="L218">        assertThat(cityRepository.count(), equalTo(9L));</span>
+<span class="fc" id="L219">    }</span>
+    
+    /**
+     * Tests post request with countryId that does not exist. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithCountryIdThatDoesntExist() throws InterruptedException {
+<span class="fc" id="L228">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L229">        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);</span>
+        
+<span class="fc" id="L231">        assertThat(cityRepository.count(), equalTo(9L));</span>
+        
+<span class="fc" id="L233">        final Map&lt;String, Object&gt; m = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L234">        m.put(&quot;cityName&quot;, &quot;Maringa&quot;);</span>
+<span class="fc" id="L235">        m.put(&quot;countryId&quot;, 99999L);</span>
+        
+<span class="fc" id="L237">        final HttpEntity&lt;Map&lt;String, Object&gt;&gt; request = new HttpEntity&lt;Map&lt;String, Object&gt;&gt;(m, headers);</span>
+<span class="fc" id="L238">        restTemplate.postForEntity(this.localhost + this.port + &quot;/rest/cities&quot;, </span>
+        		request, 
+        		String.class);
+        
+<span class="fc" id="L242">        assertThat(cityRepository.count(), equalTo(9L));</span>
+<span class="fc" id="L243">    }</span>
+    
+    /**
+     * Tests post request without cityName. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithoutCityName() throws InterruptedException {
+<span class="fc" id="L252">        final HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L253">        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);</span>
+        
+<span class="fc" id="L255">        assertThat(cityRepository.count(), equalTo(9L));</span>
+        
+<span class="fc" id="L257">        final Map&lt;String, Object&gt; m = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L258">        m.put(&quot;cityName&quot;, null);</span>
+<span class="fc" id="L259">        m.put(&quot;countryId&quot;, 1L);</span>
+        
+<span class="fc" id="L261">        final HttpEntity&lt;Map&lt;String, Object&gt;&gt; request = new HttpEntity&lt;Map&lt;String, Object&gt;&gt;(m, headers);</span>
+<span class="fc" id="L262">        restTemplate.postForEntity(this.localhost + this.port + &quot;/rest/cities&quot;, </span>
+        		request, 
+        		String.class);
+        
+<span class="fc" id="L266">        assertThat(cityRepository.count(), equalTo(9L));</span>
+<span class="fc" id="L267">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>java (01/09/2018 18:42:53)</div></body></html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CityDTO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (01/09/2018 18:42:53)</a> &gt; <a href="../../index.html" class="el_group">spring-jpa-jersey</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">br.com.cinq.spring.data.dto</a> &gt; <span class="el_source">CityDTO.java</span></div><h1>CityDTO.java</h1><pre class="source lang-java linenums">package br.com.cinq.spring.data.dto;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class CityDTO {
+
+	private String cityName;
+	private Long countryId;
+
+<span class="fc" id="L11">	public CityDTO() {</span>
+<span class="fc" id="L12">	}</span>
+	
+<span class="fc" id="L14">	public CityDTO(final String cityName, final Long countryId) {</span>
+<span class="fc" id="L15">		this.cityName = cityName;</span>
+<span class="fc" id="L16">		this.countryId = countryId;</span>
+<span class="fc" id="L17">	}</span>
+
+	public String getCityName() {
+<span class="fc" id="L20">		return cityName;</span>
+	}
+
+	public void setCityName(final String cityName) {
+<span class="fc" id="L24">		this.cityName = cityName;</span>
+<span class="fc" id="L25">	}</span>
+
+	public Long getCountryId() {
+<span class="fc" id="L28">		return countryId;</span>
+	}
+
+	public void setCountryId(final Long countryId) {
+<span class="fc" id="L32">		this.countryId = countryId;</span>
+<span class="fc" id="L33">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>java (01/09/2018 18:42:53)</div></body></html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CityServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">java (01/09/2018 18:42:53)</a> &gt; <a href="../../index.html" class="el_group">spring-jpa-jersey</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">br.com.cinq.spring.data.service</a> &gt; <span class="el_source">CityServiceTest.java</span></div><h1>CityServiceTest.java</h1><pre class="source lang-java linenums">package br.com.cinq.spring.data.service;
+
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import br.com.cinq.spring.data.application.Application;
+import br.com.cinq.spring.data.dto.CityDTO;
+import br.com.cinq.spring.data.entity.City;
+import br.com.cinq.spring.data.exception.CountryNotFoundException;
+import br.com.cinq.spring.data.exception.LackingCityNameException;
+import br.com.cinq.spring.data.exception.LackingCountryIdException;
+import br.com.cinq.spring.data.repository.CityRepository;
+
+/**
+ * This test aims to validate the error messages that ocurr when we try 
+ * to create an invalid city. It means that when we try to create a:
+ * &lt;ul&gt;&lt;li&gt;city without a name&lt;/li&gt;
+ * &lt;li&gt;city with a country that does not exists&lt;/li&gt;
+ * &lt;li&gt;city with a country without id&lt;/li&gt;&lt;/ul&gt;
+ * an IllegalArgumentException will be thrown.
+ * 
+ * In JUnit 5 there's a better way to use these assertions. 
+ * Something like assertThrows(Exception.class, () -&gt; service.create()).
+ * But there's a bug with Eclipse integration that it does not allow 
+ * to run the code in Eclipse. Because of that, the execution of 
+ * Coverage wouldn't be possible, so I'm using the old fashion Rule.
+ * 
+ * @author Andre Brito Fonseca
+ *
+ */
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
+@TestConfiguration(value = &quot;test&quot;)
+<span class="fc" id="L46">public class CityServiceTest {</span>
+	
+	@Autowired
+	private CityService cityService;
+	
+	@Autowired
+	private CityRepository cityRepository;
+	
+<span class="fc" id="L54">	@Rule</span>
+<span class="fc" id="L55">	public ExpectedException expectedException = ExpectedException.none();</span>
+	
+	@Test
+	public void shouldOccurrExceptionWhenCreatingCityWithoutName() {
+<span class="fc" id="L59">		expectedException.expect(LackingCityNameException.class);</span>
+<span class="nc" id="L60">		cityService.createCity(new CityDTO(null, 1L));</span>
+<span class="nc" id="L61">	}</span>
+	
+	@Test
+	public void shouldOccurrExceptionWhenCreatingCityWithUnexistingCountry() {
+<span class="fc" id="L65">		expectedException.expect(CountryNotFoundException.class);</span>
+<span class="nc" id="L66">		cityService.createCity(new CityDTO(&quot;Town&quot;, 10000L));</span>
+<span class="nc" id="L67">	}</span>
+	
+	@Test
+	public void shouldOccurrExceptionWhenCreatingCityWithoutCountry() {
+<span class="fc" id="L71">		expectedException.expect(LackingCountryIdException.class);</span>
+<span class="nc" id="L72">		cityService.createCity(new CityDTO(&quot;Town&quot;, null));</span>
+<span class="nc" id="L73">	}</span>
+	
+	@Test
+	public void shoudCreateCityWhenAllParametersAreValid() {
+<span class="fc" id="L77">		final List&lt;City&gt; citiesBefore = cityRepository.findByName(&quot;Town&quot;);</span>
+<span class="fc" id="L78">		assertThat(citiesBefore, empty());</span>
+		
+<span class="fc" id="L80">		cityService.createCity(new CityDTO(&quot;Town&quot;, 1L));</span>
+		
+<span class="fc" id="L82">		final List&lt;City&gt; citiesAfter = cityRepository.findByName(&quot;Town&quot;);</span>
+<span class="fc" id="L83">		assertThat(citiesAfter, hasSize(1));</span>
+<span class="fc" id="L84">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>java (01/09/2018 18:42:53)</div></body></html>

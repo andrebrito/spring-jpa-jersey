@@ -40,8 +40,21 @@ public class CityRepositoryTest {
         final Country country = new Country();
         country.setId(3L);
 
-        final List<City> cities = dao.findByCountry(country);
+        final List<City> cities = dao.findAllByCountry(country);
         assertThat(cities, hasSize(2));
+        assertThat(cities, CityMatcher.hasCityWithName("Paris"));
+        assertThat(cities, CityMatcher.hasCityWithName("Lyon"));
+    }
+    
+    @Test
+    public void testFindCityByCountryName() {
+        assertNotNull(dao);
+        assertThat(dao.count(), greaterThan(0L));
+
+        final List<City> cities = dao.findAllByCountryName("France");
+        assertThat(cities, hasSize(2));
+        assertThat(cities, CityMatcher.hasCityWithName("Paris"));
+        assertThat(cities, CityMatcher.hasCityWithName("Lyon"));
     }
     
     /**

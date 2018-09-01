@@ -3,6 +3,7 @@ package br.com.cinq.spring.data.repository;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -71,6 +72,27 @@ public class CountryRepositoryTest {
         
         assertThat(countries, CountryMatcher.hasCountryWithName("Brazil"));
         assertThat(countries, CountryMatcher.hasCountryWithName("France"));
+    }
+    
+    /**
+     * Test retrieving the country by name, ignoring the capitalization.
+     * Using CountryMatcher. 
+     */
+    @Test
+    public void testFindByName() {
+        assertNotNull(dao);
+        
+        Country country = dao.findByNameIgnoreCase("Brazil");
+        assertThat(country, notNullValue());
+        assertThat(country.getName(), equalTo("Brazil"));
+        
+        country = dao.findByNameIgnoreCase("brazil");
+        assertThat(country, notNullValue());
+        assertThat(country.getName(), equalTo("Brazil"));
+        
+        country = dao.findByNameIgnoreCase("BRAZIL");
+        assertThat(country, notNullValue());
+        assertThat(country.getName(), equalTo("Brazil"));
     }
 
 }

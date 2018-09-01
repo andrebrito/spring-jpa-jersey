@@ -2,7 +2,9 @@ package br.com.cinq.spring.data.resource;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
 
+import br.com.cinq.spring.data.dto.CityDTO;
 import br.com.cinq.spring.data.entity.City;
 import br.com.cinq.spring.data.repository.CityRepository;
 
@@ -36,8 +39,15 @@ public class CityResource {
 			return Response.ok(cityRepository.findAll()).build();
 		}
 		
-		final List<City> cities = cityRepository.findAllByCountryName(country);
+		final List<City> cities = cityRepository.findAllByCountryNameContainingIgnoreCase(country);
 		return Response.ok(cities).build();
+	}
+	
+	@POST
+	@Consumes("application/json")
+	public Response createCity(final CityDTO cityDTO) {
+		System.out.println("countryId: " + cityDTO);
+		return null;
 	}
 	
 

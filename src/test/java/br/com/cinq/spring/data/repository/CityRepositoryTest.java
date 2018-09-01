@@ -57,6 +57,17 @@ public class CityRepositoryTest {
         assertThat(cities, CityMatcher.hasCityWithName("Lyon"));
     }
     
+    @Test
+    public void testFindCityByCountryNameLike() {
+        assertNotNull(dao);
+        assertThat(dao.count(), greaterThan(0L));
+
+        final List<City> cities = dao.findAllByCountryNameContainingIgnoreCase("fR");
+        assertThat(cities, hasSize(2));
+        assertThat(cities, CityMatcher.hasCityWithName("Paris"));
+        assertThat(cities, CityMatcher.hasCityWithName("Lyon"));
+    }
+    
     /**
      * Test the find the name criteria.
      * Using CityMatcher. 

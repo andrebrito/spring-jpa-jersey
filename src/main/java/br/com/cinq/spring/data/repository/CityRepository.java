@@ -15,6 +15,8 @@ public interface CityRepository extends CrudRepository<City, Long> {
 
 	public List<City> findByNameContainingIgnoreCase(final String name);
 
-	public List<City> findAllByCountryName(final String string);
+	public List<City> findAllByCountryName(final String countryName);
+
+	public List<City> findAllByCountryNameContainingIgnoreCase(final String countryName);
 
 }

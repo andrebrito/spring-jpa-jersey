@@ -12,6 +12,9 @@ import br.com.cinq.spring.data.builder.CityBuilder;
 import br.com.cinq.spring.data.dto.CityDTO;
 import br.com.cinq.spring.data.entity.City;
 import br.com.cinq.spring.data.entity.Country;
+import br.com.cinq.spring.data.exception.CountryNotFoundException;
+import br.com.cinq.spring.data.exception.LackingCityNameException;
+import br.com.cinq.spring.data.exception.LackingCountryIdException;
 import br.com.cinq.spring.data.repository.CityRepository;
 import br.com.cinq.spring.data.repository.CountryRepository;
 
@@ -48,19 +51,19 @@ public class CityService {
 	private void validateCity(final CityDTO cityDTO) {
 		final String cityName = cityDTO.getCityName();
 		if (isNullOrEmpty(cityName)) {
-			throw new IllegalArgumentException("Lacking city name.");
+			throw new LackingCityNameException();
 		}
 	}
 
 	private void validateCountry(final CityDTO cityDTO) {
 		final Long countryId = cityDTO.getCountryId();
 		if (isNull(countryId)) {
-			throw new IllegalArgumentException("Lacking country's id.");
+			throw new LackingCountryIdException();
 		}
 		
 		final Optional<Country> optCountry = countryRepository.findById(countryId);
 		if (!optCountry.isPresent()) {
-			throw new IllegalArgumentException("Country with id " + countryId + " not found.");
+			throw new CountryNotFoundException(countryId);
 		}
 	}
 

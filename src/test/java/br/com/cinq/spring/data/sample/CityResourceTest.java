@@ -41,6 +41,13 @@ import br.com.cinq.spring.data.repository.CityRepository;
  * I didn't like how the name of the test class was (EndpointTest), 
  * so I changed. I hope that it's not a problem.  
  * 
+ * I have to say that I definetly believe that mockMvc is better suitable for the job.
+ * Since I don't know that I can change, I will remain with RestTemplate.
+ * 
+ * In a few tests, we receive a 200, but with a code of 400 on the body. 
+ * I'm not sure how it's the best way to test that and if doing like that 
+ * is the right and better way. Sorry.
+ * 
  * @author Andre Brito Fonseca
  *
  */

@@ -1,5 +1,7 @@
 package br.com.cinq.spring.data.sample;
 
+import static com.google.common.collect.Iterables.getLast;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -8,7 +10,9 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,12 +29,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.cinq.spring.data.application.Application;
-import br.com.cinq.spring.data.dto.CityDTO;
 import br.com.cinq.spring.data.entity.City;
 import br.com.cinq.spring.data.repository.CityRepository;
 
@@ -76,7 +77,7 @@ public class CityResourceTest {
     @Test
     public void findCitiesByCountry() throws InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + "/rest/cities")
                 .queryParam("country", "France");
@@ -104,7 +105,7 @@ public class CityResourceTest {
     @Test
     public void findCitiesByCountryWithLikeClause() throws InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + "/rest/cities")
                 .queryParam("country", "fr");
@@ -131,7 +132,7 @@ public class CityResourceTest {
     @Test
     public void findAllCities() throws InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.localhost + this.port + "/rest/cities");
 
@@ -157,23 +158,104 @@ public class CityResourceTest {
     @Test
     public void createCity() throws InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         
         final String cityName = "Maringa";
-        final MultiValueMap<String, CityDTO> params = new LinkedMultiValueMap<>();
-        params.add("cityDTO", new CityDTO(cityName, 1L));
+        final List<City> citiesBeforeRequest = cityRepository.findByName(cityName);
+        assertThat(citiesBeforeRequest, empty());
         
-        final HttpEntity<MultiValueMap<String, CityDTO>> request = new HttpEntity<>(params, headers);
-        final ResponseEntity<City> response = restTemplate.postForEntity(this.localhost + this.port + "/rest/cities", 
+        final Long countryId = 1L;
+        final Map<String, Object> m = new HashMap<String, Object>();
+        m.put("cityName", cityName);
+        m.put("countryId", countryId);
+        
+        final HttpEntity<Map<String, Object>> request = new HttpEntity<Map<String, Object>>(m, headers);
+        final ResponseEntity<String> response = restTemplate.postForEntity(this.localhost + this.port + "/rest/cities", 
         		request, 
-        		City.class);
+        		String.class);
 
         assertThat(response.getStatusCode(), equalTo(OK));
         
-        final City city = response.getBody();
+        final List<City> citiesAfterRequest = cityRepository.findByName(cityName);
+        assertThat(citiesAfterRequest, hasSize(1));
+        
+        final City city = getLast(citiesAfterRequest);
         assertThat(city, notNullValue());
-        assertThat(city.getName(), equalTo(cityName));
         assertThat(city.getId(), greaterThan(0L));
+        assertThat(city.getName(), equalTo(cityName));
         assertThat(city.getCountry().getName(), equalTo("Brazil"));
+        assertThat(city.getCountry().getId(), equalTo(countryId));
+    }
+    
+    /**
+     * Tests post request without countryId. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithoutCountryId() throws InterruptedException {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
+        
+        final Map<String, Object> m = new HashMap<String, Object>();
+        m.put("cityName", "Maringa");
+        m.put("countryId", null);
+        
+        final HttpEntity<Map<String, Object>> request = new HttpEntity<Map<String, Object>>(m, headers);
+        restTemplate.postForEntity(this.localhost + this.port + "/rest/cities", 
+        		request, 
+        		String.class);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
+    }
+    
+    /**
+     * Tests post request with countryId that does not exist. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithCountryIdThatDoesntExist() throws InterruptedException {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
+        
+        final Map<String, Object> m = new HashMap<String, Object>();
+        m.put("cityName", "Maringa");
+        m.put("countryId", 99999L);
+        
+        final HttpEntity<Map<String, Object>> request = new HttpEntity<Map<String, Object>>(m, headers);
+        restTemplate.postForEntity(this.localhost + this.port + "/rest/cities", 
+        		request, 
+        		String.class);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
+    }
+    
+    /**
+     * Tests post request without cityName. 
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void makePostRequestWithoutCityName() throws InterruptedException {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
+        
+        final Map<String, Object> m = new HashMap<String, Object>();
+        m.put("cityName", null);
+        m.put("countryId", 1L);
+        
+        final HttpEntity<Map<String, Object>> request = new HttpEntity<Map<String, Object>>(m, headers);
+        restTemplate.postForEntity(this.localhost + this.port + "/rest/cities", 
+        		request, 
+        		String.class);
+        
+        assertThat(cityRepository.count(), equalTo(9L));
     }
 }

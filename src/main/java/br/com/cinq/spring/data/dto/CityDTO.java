@@ -1,5 +1,8 @@
 package br.com.cinq.spring.data.dto;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class CityDTO {
 
 	private String cityName;

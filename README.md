@@ -21,7 +21,7 @@ When typed in the browser the URI, open a browser and type :
     http://localhost:8090/rest/cities?country=Uni
 
 We get a JSON containing all the cities in the database (above screenshot).
-[![JSON in Browser](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/opened-in-browser.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/opened-in-browser.png)]
+[![JSON in Browser](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/opened-in-browser.png)](https://raw.githubusercontent.com/andrebrito/spring-jpa-jersey/master/opened-in-browser.png)
 
 
 ## Unit tests

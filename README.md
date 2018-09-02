@@ -9,7 +9,10 @@ I upgraded Spring to version 2 >, so it ended up breaking a lot of things. I cha
 ## Exercise
 - Entities were created
 - Used SpringData to data manipulation layer
-- There's a GET method to retrieve the list of cities
+- There's a GET method to retrieve the list of cities (based on the query param 'country', but if there's no query param the service will retrieve all cities)
+- There's a POST method to create a city (sending a JSON with cityName and countryId)
+- There's a GET method to retrieve the list of countries using a query param (same as above, if there's no query param the service will retrieve all countries)
+- There's a POST method to create a new one based on the path param (/countries/nameOfNewCountry)
 - Ended up creating a simple rest service to load data into the database. 
 
 
